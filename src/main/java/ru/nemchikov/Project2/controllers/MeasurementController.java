@@ -8,6 +8,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import ru.nemchikov.Project2.dto.MeasurementDTO;
+import ru.nemchikov.Project2.dto.MeasurementResponse;
 import ru.nemchikov.Project2.models.Measurement;
 import ru.nemchikov.Project2.services.MeasurementService;
 import ru.nemchikov.Project2.util.MeasurementErrorResponse;
@@ -32,9 +33,18 @@ public class MeasurementController {
     }
 
     @GetMapping()
-    public List<Measurement> getMeasurements() {
-        return measurementService.findAll().stream().collect(Collectors.toList());
+    public MeasurementResponse getMeasurements() {
+        return new MeasurementResponse(measurementService.findAll().stream()
+                .map(this::convertToMeasurementDTO)
+                .collect(Collectors.toList()));
     }
+
+    @GetMapping("/rainyDaysCount")
+    public long getRainyDaysCount(){
+        return measurementService.findAll().stream()
+                .filter(Measurement::isRaining).count();
+    }
+
 
     @PostMapping("/add")
     public ResponseEntity<HttpStatus> addMeasurement(@RequestBody @Valid MeasurementDTO measurementDTO,
