@@ -7,6 +7,7 @@ import ru.nemchikov.Project2.models.Sensor;
 import ru.nemchikov.Project2.repositories.SensorRepository;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -18,8 +19,8 @@ public class SensorService {
         this.sensorRepository = sensorRepository;
     }
 
-    public Sensor findByName(String name) {
-         return sensorRepository.findByName(name).orElse(null);
+    public Optional<Sensor> findByName(String name) {
+         return sensorRepository.findByName(name);
     }
     @Transactional
     public void save(Sensor sensor){

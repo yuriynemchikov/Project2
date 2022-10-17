@@ -13,6 +13,7 @@ import ru.nemchikov.Project2.services.SensorService;
 import ru.nemchikov.Project2.util.SensorErrorResponse;
 import ru.nemchikov.Project2.util.SensorNotCreatedException;
 import ru.nemchikov.Project2.util.SensorNotFoundException;
+import ru.nemchikov.Project2.util.SensorValidator;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -22,18 +23,24 @@ import java.util.List;
 public class SensorController {
 
     private final SensorService sensorService;
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
+    private final SensorValidator validator;
 
     @Autowired
-    public SensorController(SensorService sensorService, ModelMapper modelMapper) {
+    public SensorController(SensorService sensorService, ModelMapper modelMapper, SensorValidator validator) {
         this.sensorService = sensorService;
         this.modelMapper = modelMapper;
+        this.validator = validator;
     }
 
 
     @PostMapping("/registration")
     public ResponseEntity<HttpStatus> registration(@RequestBody @Valid SensorDTO sensorDTO,
                                                    BindingResult bindingResult){
+        Sensor sensorToAdd = convertToSensor(sensorDTO);
+
+        validator.validate(sensorToAdd, bindingResult);
+
         if (bindingResult.hasErrors()){
             StringBuilder errorMsg = new StringBuilder();
 
@@ -46,7 +53,7 @@ public class SensorController {
             }
             throw new SensorNotCreatedException(errorMsg.toString());
         }
-        sensorService.save(convertToSensor(sensorDTO));
+        sensorService.save(sensorToAdd);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
